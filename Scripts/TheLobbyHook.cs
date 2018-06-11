@@ -9,9 +9,19 @@ public class TheLobbyHook : LobbyHook
     {
         LobbyPlayer lPlayer = lobbyPlayer.GetComponent<LobbyPlayer>();
         Player gPlayer = gamePlayer.GetComponent<Player>();
+        HandleTagged itplayer = gamePlayer.GetComponent<HandleTagged>();
+        PlayerTagging itplayertagging = gamePlayer.GetComponent<PlayerTagging>();
 
         gPlayer.playerName = lPlayer.playerName;
         gPlayer.playerColor = lPlayer.playerColor;
+        itplayer.isit = lPlayer.StartAsIt;
+
+        if (itplayer.isit)
+        {
+            itplayertagging.isit = true;
+            itplayer.taggable = false;
+        }
+
     }
 }
 

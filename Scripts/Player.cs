@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -37,11 +37,13 @@ public class Player : NetworkBehaviour
     public float originalycrouch = .52f;
     bool tagging;
     bool running;
+    public float walksoundspeed = .5f;
     public int fatigue;
     public int maxfatigue = 100;
     static List<Player> players = new List<Player>();
     float timer;
     bool fatigued = false;
+    bool TagWalk = false;
     public Text energystatus;
 
     void Start()
@@ -77,15 +79,29 @@ public class Player : NetworkBehaviour
     {
         if (!isLocalPlayer)
             return;
-
+       
         SetAnimSpeed();
 
         CheckFire();
+        if (m_CharacterController.isGrounded)
+        {
+            Debug.Log(m_CharacterController.isGrounded);
+            if (running)
+            {
+                anim.animator.SetBool("IsRunning", true);
+            }
+            anim.animator.SetBool("IsJumping", false);
 
-        CheckCrouch();
+            CheckCrouch();
 
-        CheckRun();
-
+            CheckRun();
+        }
+        if (Input.GetButtonDown("Jump"))
+        {
+            anim.animator.SetBool("IsJumping", true);
+            anim.animator.SetBool("IsCrouching", false);
+            iscrouching = false;
+        }
         UpdateCam();
 
     }
@@ -99,6 +115,7 @@ public class Player : NetworkBehaviour
         if (Input.GetButtonDown("Fire1"))
         {
             tagging = true;
+            TagWalk = true;
             anim.animator.SetBool("Tag", true);
             anim.animator.SetBool("TagEnd", false);
             //xposition = .2f;
@@ -109,7 +126,24 @@ public class Player : NetworkBehaviour
             tagging = false;
             anim.animator.SetBool("Tag", false);
             anim.animator.SetBool("TagEnd", true);
+            Invoke("StopWalking", .2f);
             iscrouching = false;
+        }
+        if (tagging && TagWalk)
+        {
+            if (anim.animator.GetFloat("Strafe") != 0 || anim.animator.GetFloat("Speed") != 0)
+            {
+                if (running)
+                {
+                    walksoundspeed = .3f;
+                }
+                else
+                {
+                    walksoundspeed = .5f;
+                }
+                TagWalk = false;
+                InvokeRepeating("PlayFootStep", .2f, walksoundspeed);
+            }
         }
     }
 
@@ -117,7 +151,7 @@ public class Player : NetworkBehaviour
     {
         if (Input.GetKey(KeyCode.C))
         {
-            if (!tagging)
+            if (!tagging && !anim.animator.GetBool("IsJumping"))
             {
                 iscrouching = true;
                 anim.animator.SetBool("IsCrouching", true);
@@ -299,13 +333,13 @@ public class Player : NetworkBehaviour
 
     void PlayFootStep()
     {
-        if (isLocalPlayer)
-            return;
+       /* if (isLocalPlayer)
+            //return;
         if (!m_CharacterController.isGrounded)
         {
             Debug.Log("falsepositive");
             //return;
-        }
+        }*/
         // pick & play a random footstep sound from the array,
         // excluding sound at index 0
         int n = Random.Range(1, m_FootstepSounds.Length);
@@ -318,8 +352,8 @@ public class Player : NetworkBehaviour
     }
     void PlaySideStepLeft()
     {
-        if (isLocalPlayer)
-            return;
+        /*if (isLocalPlayer)
+            return;*/
         if (anim.animator.GetFloat("Strafe") < 0 && anim.animator.GetFloat("Speed") == 0)
         {
             // pick & play a random footstep sound from the array,
@@ -335,8 +369,8 @@ public class Player : NetworkBehaviour
     }
     void PlaySideStepRight()
     {
-        if (isLocalPlayer)
-            return;
+        /*if (isLocalPlayer)
+            return;*/
         if (anim.animator.GetFloat("Strafe") > 0 && anim.animator.GetFloat("Speed") == 0)
         {
             // pick & play a random footstep sound from the array,
@@ -350,5 +384,8 @@ public class Player : NetworkBehaviour
             m_FootstepSounds[0] = m_AudioSource.clip;
         }
     }
-
-}
+    void StopWalking()
+    {
+        CancelInvoke("PlayFootStep");
+    }
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
